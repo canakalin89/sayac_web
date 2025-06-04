@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YKS Geri Sayım</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            overflow-x: hidden;
+        }
+        
+        /* Modern Açık Tema */
+        .theme-modern-light {
+            --bg-primary: #f9fafb;
+            --bg-secondary: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --accent: #6366f1;
+            --progress-bg: #e5e7eb;
+            --progress-fill: #6366f1;
+            --border-color: #e5e7eb;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --gradient-start: #c7d2fe;
+            --gradient-end: #a5b4fc;
+        }
+        
+        /* Modern Koyu Tema */
+        .theme-modern-dark {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --accent: #818cf8;
+            --progress-bg: #374151;
+            --progress-fill: #818cf8;
+            --border-color: #374151;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --gradient-start: #4f46e5;
+            --gradient-end: #6366f1;
+        }
+        
+        /* Turkuaz Tema */
+        .theme-turquoise {
+            --bg-primary: #042f2e;
+            --bg-secondary: #134e4a;
+            --text-primary: #f0fdfa;
+            --text-secondary: #99f6e4;
+            --accent: #2dd4bf;
+            --progress-bg: #115e59;
+            --progress-fill: #2dd4bf;
+            --border-color: #115e59;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --gradient-start: #0d9488;
+            --gradient-end: #14b8a6;
+        }
+        
+        /* Amber Tema */
+        .theme-amber {
+            --bg-primary: #451a03;
+            --bg-secondary: #78350f;
+            --text-primary: #fffbeb;
+            --text-secondary: #fef3c7;
+            --accent: #f59e0b;
+            --progress-bg: #92400e;
+            --progress-fill: #f59e0b;
+            --border-color: #92400e;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --gradient-start: #d97706;
+            --gradient-end: #f59e0b;
+        }
+        
+        /* Fuşya Tema */
+        .theme-fuchsia {
+            --bg-primary: #4a044e;
+            --bg-secondary: #701a75;
+            --text-primary: #fdf4ff;
+            --text-secondary: #f5d0fe;
+            --accent: #d946ef;
+            --progress-bg: #86198f;
+            --progress-fill: #d946ef;
+            --border-color: #86198f;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --gradient-start: #c026d3;
+            --gradient-end: #d946ef;
+        }
+        
+        /* Gökyüzü Tema */
+        .theme-sky {
+            --bg-primary: #0c4a6e;
+            --bg-secondary: #0369a1;
+            --text-primary: #f0f9ff;
+            --text-secondary: #bae6fd;
+            --accent: #0ea5e9;
+            --progress-bg: #075985;
+            --progress-fill: #0ea5e9;
+            --border-color: #075985;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --gradient-start: #0284c7;
+            --gradient-end: #0ea5e9;
+        }
+        
+        /* Genel Bileşen Stilleri */
+        .countdown-box {
+            background-color: var(--bg-secondary);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px var(--shadow-color), 0 8px 10px -6px var(--shadow-color);
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .countdown-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+        }
+        
+        .countdown-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px var(--shadow-color), 0 10px 10px -5px var(--shadow-color);
+        }
+        
+        .countdown-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+            width: 70px;
+            height: 70px;
+            margin: 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .countdown-unit::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+            pointer-events: none;
+        }
+        
+        .countdown-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-primary);
+        }
+        
+        .countdown-label {
+            font-size: 0.7rem;
+            margin-top: 4px;
+            color: var(--accent);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: var(--progress-bg);
+            transition: all var(--transition-speed);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            transition: width 0.5s ease;
+        }
+        
+        .exam-info {
+            font-size: 0.85rem;
+            border-left: 3px solid var(--accent);
+            padding-left: 12px;
+            margin: 12px 0;
+            color: var(--text-secondary);
+        }
+        
+        .logo-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            background-color: var(--bg-secondary);
+            border: 4px solid var(--accent);
+            box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color);
+            z-index: 5;
+            position: relative;
+            transition: border-color var(--transition-speed);
+        }
+        
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+        
+        /* Tema Seçici Stilleri */
+        .theme-switcher {
+            position: relative;
+        }
+        
+        .theme-button {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color);
+            transition: transform 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .theme-button:hover {
+            transform: translateY(-2px) scale(1.05);
+        }
+        
+        .theme-dropdown {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            margin-bottom: 10px;
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px var(--shadow-color), 0 8px 10px -6px var(--shadow-color);
+            padding: 10px;
+            width: 200px;
+            display: none;
+            z-index: 30;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .theme-dropdown.open {
+            display: block;
+        }
+        
+        .theme-option {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .theme-option:last-child {
+            margin-bottom: 0;
+        }
+        
+        .theme-option:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .theme-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .theme-color-modern-light {
+            background: linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 100%);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .theme-color-modern-dark {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        }
+        
+        .theme-color-turquoise {
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+        }
+        
+        .theme-color-amber {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        }
+        
+        .theme-color-fuchsia {
+            background: linear-gradient(135deg, #c026d3 0%, #d946ef 100%);
+        }
+        
+        .theme-color-sky {
+            background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+            color: var(--accent);
+        }
+        
+        .social-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* Duyarlı Tasarım */
+        @media (max-width: 768px) {
+            .countdown-unit {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .countdown-value {
+                font-size: 1.25rem;
+            }
+            
+            .social-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .countdown-unit {
+                width: 50px;
+                height: 50px;
+                padding: 6px;
+            }
+            
+            .countdown-value {
+                font-size: 1rem;
+            }
+            
+            .countdown-label {
+                font-size: 0.6rem;
+            }
+        }
+        
+        /* Okul logosu için stil */
+        .school-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="theme-modern-dark">
+    <div class="min-h-screen" style="background-color: var(--bg-primary);">
+        <div class="container mx-auto px-4 py-8 max-w-6xl relative z-10">
+            <header class="text-center mb-8">
+                <div class="flex justify-center mb-6">
+                    <div class="logo-container">
+                        <!-- İstenen URL ile okul logosu -->
+                        <img src="https://azizsancaranadolu.meb.k12.tr/meb_iys_dosyalar/59/11/765062/dosyalar/2025_06/04182832_logolar7.png" alt="Aziz Sancar Anadolu Lisesi Logo" class="school-logo">
+                    </div>
+                </div>
+                <h1 class="text-4xl font-bold mb-2" style="color: var(--text-primary);" id="school-name">Aziz Sancar Anadolu Lisesi</h1>
+                <p class="text-lg mb-6" id="school-description" style="color: var(--text-secondary);">Tekirdağ Kapaklı'da yer alan ve adını Nobel ödüllü bilim insanı Prof. Dr. Aziz Sancar'dan alan okulumuz, akademik başarıyı sosyal sorumlulukla harmanlayan bir eğitim vizyonuna sahiptir.</p>
+                
+                <div class="social-links">
+                    <a href="https://azizsancaranadolu.meb.k12.tr" target="_blank" class="social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                        azizsancaranadolu.meb.k12.tr
+                    </a>
+                    <a href="https://www.instagram.com/asalkapakli2019" target="_blank" class="social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                        @asalkapakli2019
+                    </a>
+                    <a href="https://www.youtube.com/@AzizSancarAnadoluLisesi" target="_blank" class="social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                        </svg>
+                        @AzizSancarAnadoluLisesi
+                    </a>
+                    <a href="https://x.com/asalkapakli2019" target="_blank" class="social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                        @asalkapakli2019
+                    </a>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- TYT Geri Sayım -->
+                <div class="countdown-box p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-center" style="color: var(--accent);">Temel Yeterlilik Testi</h2>
+                    <div class="grid grid-cols-4 gap-3 mb-4">
+                        <div>
+                            <div class="countdown-unit">
+                                <div id="tyt-days" class="countdown-value">--</div>
+                                <div class="countdown-label">Gün</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="countdown-unit">
+                                <div id="tyt-hours" class="countdown-value">--</div>
+                                <div class="countdown-label">Saat</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="countdown-unit">
+                                <div id="tyt-minutes" class="countdown-value">--</div>
+                                <div class="countdown-label">Dakika</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="countdown-unit">
+                                <div id="tyt-seconds" class="countdown-value">--</div>
+                                <div class="countdown-label">Saniye</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span id="tyt-date" class="text-sm font-medium" style="color: var(--accent);">20 Haziran 2026</span>
+                        <span id="tyt-time" class="text-sm font-medium ml-2" style="color: var(--accent);">10:15</span>
+                    </div>
+                    <div class="mt-4">
+                        <div class="text-xs mb-1 flex justify-between">
+                            <span style="color: var(--text-secondary);">Sınava Kalan Süre</span>
+                            <span id="tyt-progress-text" style="color: var(--accent);">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="tyt-progress" class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="exam-info mt-4">
+                        <p><strong>Saat:</strong> <span id="tyt-time-display">10:15 - 12:30</span></p>
+                        <p><strong>İçerik:</strong> Türkçe (40), Sosyal Bilimler (20), Temel Matematik (40), Fen Bilimleri (20)</p>
+                        <p><strong>Toplam:</strong> 120 soru, 135 dakika</p>
+                    </div>
+                </div>
+
+                <!-- AYT Geri Sayım -->
+                <div class="countdown-box p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-center" style="color: var(--accent);">Alan Yeterlilik Testi</h2>
+                    <div class="grid grid-cols-4 gap-3 mb-4">
+                        <div>
+                            <div class="countdown-unit">
+                                <div id="ayt-days" class="countdown-value">--</div>
+                                <div class="countdown-label">Gün</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="countdown-unit">
+                                <div id="ayt-hours" class="countdown-value">--</div>
+                                <div class="countdown-label">Saat</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="countdown-unit">
+                                <div id="ayt-minutes" class="countdown-value">--</div>
+                                <div class="countdown-label">Dakika</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="countdown-unit">
+                                <div id="ayt-seconds" class="countdown-value">--</div>
+                                <div class="countdown-label">Saniye</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span id="ayt-date" class="text-sm font-medium" style="color: var(--accent);">21 Haziran 2026</span>
+                        <span id="ayt-time" class="text-sm font-medium ml-2" style="color: var(--accent);">10:15</span>
+                    </div>
+                    <div class="mt-4">
+                        <div class="text-xs mb-1 flex justify-between">
+                            <span style="color: var(--text-secondary);">Sınava Kalan Süre</span>
+                            <span id="ayt-progress-text" style="color: var(--accent);">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="ayt-progress" class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="exam-info mt-4">
+                        <p><strong>Saat:</strong> <span id="ayt-time-display">10:15 - 13:15</span></p>
+                        <p><strong>İçerik:</strong> Matematik (40), Fizik (14), Kimya (13), Biyoloji (13), Edebiyat (24), Tarih-1 (10), Coğrafya-1 (6)</p>
+                        <p><strong>Toplam:</strong> 120 soru, 180 dakika</p>
+                    </div>
+                </div>
+
+                <!-- YDT Geri Sayım -->
+                <div class="countdown-box p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-center" style="color: var(--accent);">Yabancı Dil Testi</h2>
+                    <div class="grid grid-cols-4 gap-3 mb-4">
+                        <div>
+                            <div class="countdown-unit">
+                                <div id="ydt-days" class="countdown-value">--</div>
+                                <div class="countdown-label">Gün</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="countdown-unit">
+                                <div id="ydt-hours" class="countdown-value">--</div>
+                                <div class="countdown-label">Saat</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="countdown-unit">
+                                <div id="ydt-minutes" class="countdown-value">--</div>
+                                <div class="countdown-label">Dakika</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="countdown-unit">
+                                <div id="ydt-seconds" class="countdown-value">--</div>
+                                <div class="countdown-label">Saniye</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span id="ydt-date" class="text-sm font-medium" style="color: var(--accent);">21 Haziran 2026</span>
+                        <span id="ydt-time" class="text-sm font-medium ml-2" style="color: var(--accent);">15:45</span>
+                    </div>
+                    <div class="mt-4">
+                        <div class="text-xs mb-1 flex justify-between">
+                            <span style="color: var(--text-secondary);">Sınava Kalan Süre</span>
+                            <span id="ydt-progress-text" style="color: var(--accent);">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="ydt-progress" class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="exam-info mt-4">
+                        <p><strong>Saat:</strong> <span id="ydt-time-display">15:45 - 17:45</span></p>
+                        <p><strong>İçerik:</strong> İngilizce/Almanca/Fransızca/Rusça/Arapça</p>
+                        <p><strong>Toplam:</strong> 80 soru, 120 dakika</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tema Değiştirici Butonu -->
+            <div class="fixed bottom-6 right-6 z-30 theme-switcher">
+                <button id="theme-button" class="theme-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+                
+                <!-- Tema Açılır Menüsü -->
+                <div id="theme-dropdown" class="theme-dropdown">
+                    <div class="theme-option" data-theme="modern-light">
+                        <div class="theme-color theme-color-modern-light"></div>
+                        <span>Modern Açık</span>
+                    </div>
+                    <div class="theme-option" data-theme="modern-dark">
+                        <div class="theme-color theme-color-modern-dark"></div>
+                        <span>Modern Koyu</span>
+                    </div>
+                    <div class="theme-option" data-theme="turquoise">
+                        <div class="theme-color theme-color-turquoise"></div>
+                        <span>Turkuaz</span>
+                    </div>
+                    <div class="theme-option" data-theme="amber">
+                        <div class="theme-color theme-color-amber"></div>
+                        <span>Amber</span>
+                    </div>
+                    <div class="theme-option" data-theme="fuchsia">
+                        <div class="theme-color theme-color-fuchsia"></div>
+                        <span>Fuşya</span>
+                    </div>
+                    <div class="theme-option" data-theme="sky">
+                        <div class="theme-color theme-color-sky"></div>
+                        <span>Gökyüzü</span>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="text-center py-4 relative z-10">
+                <p class="text-sm" style="color: var(--text-secondary);">
+                    Tasarlayan: <a href="https://www.instagram.com/can_akalin" target="_blank" class="hover:underline" style="color: var(--accent);">Can Akalın</a>
+                </p>
+                <p class="text-xs mt-1" style="color: var(--text-secondary);">© 2025 Tüm Hakları Saklıdır</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Logo yükleme hatası durumunda yedek logo göster
+            document.querySelector('.school-logo').onerror = function() {
+                this.onerror = null;
+                this.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9Ijk1IiBmaWxsPSJ3aGl0ZSIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIwLCAyMCkgc2NhbGUoMC44KSI+PHBhdGggZD0iTTEwMCwzMCBDMTMwLDMwIDE1NSw1NSAxNTUsODUgQzE1NSwxMTUgMTMwLDE0MCAxMDAsMTQwIEM3MCwxNDAgNDUsMTE1IDQ1LDg1IEM0NSw1NSA3MCwzMCAxMDAsMzAgWiIgZmlsbD0iI2U2Mzk0NiIgLz48cGF0aCBkPSJNMTAwLDQwIEMxMjUsNDAgMTQ1LDYwIDE0NSw4NSBDMTQ1LDExMCAxMjUsMTMwIDEwMCwxMzAgQzc1LDEzMCA1NSwxMTAgNTUsODUgQzU1LDYwIDc1LDQwIDEwMCw0MCBaIiBmaWxsPSJ3aGl0ZSIgLz48cGF0aCBkPSJNMTAwLDUwIEMxMjAsNTAgMTM1LDY1IDEzNSw4NSBDMTM1LDEwNSAxMjAsMTIwIDEwMCwxMjAgQzgwLDEyMCA2NSwxMDUgNjUsODUgQzY1LDY1IDgwLDUwIDEwMCw1MCBaIiBmaWxsPSIjMWQzNTU3IiAvPjx0ZXh0IHg9IjEwMCIgeT0iOTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIj5BU0FMPC90ZXh0PjxwYXRoIGQ9Ik03MCwxNTAgTDEzMCwxNTAgTDEzMCwxNjAgTDcwLDE2MCBaIiBmaWxsPSIjZTYzOTQ2IiAvPjxwYXRoIGQ9Ik04MCwxNjAgTDEyMCwxNjAgTDEyMCwxNzAgTDgwLDE3MCBaIiBmaWxsPSIjMWQzNTU3IiAvPjwvZz48L3N2Zz4=';
+                console.log('Logo yüklenemedi, yedek logo gösteriliyor.');
+            };
+            
+            // Varsayılan tarihler
+            const defaultDates = {
+                tyt: new Date('2026-06-20T10:15:00'),
+                ayt: new Date('2026-06-21T10:15:00'),
+                ydt: new Date('2026-06-21T15:45:00')
+            };
+
+            // Sınav tarihlerini başlat
+            let examDates = {
+                tyt: getSavedDate('tyt-date') || defaultDates.tyt,
+                ayt: getSavedDate('ayt-date') || defaultDates.ayt,
+                ydt: getSavedDate('ydt-date') || defaultDates.ydt
+            };
+            
+            // Tarih görüntülemelerini güncelle
+            updateDateDisplay('tyt-date', examDates.tyt);
+            updateDateDisplay('ayt-date', examDates.ayt);
+            updateDateDisplay('ydt-date', examDates.ydt);
+
+            // Tema açılır menüsü işlevselliği
+            document.getElementById('theme-button').addEventListener('click', function(e) {
+                e.stopPropagation();
+                document.getElementById('theme-dropdown').classList.toggle('open');
+            });
+            
+            // Açılır menüdeki tema seçenekleri
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    applyTheme(theme);
+                    document.getElementById('theme-dropdown').classList.remove('open');
+                });
+            });
+            
+            // Başka bir yere tıklandığında tema açılır menüsünü kapat
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#theme-dropdown') && !e.target.closest('#theme-button')) {
+                    document.getElementById('theme-dropdown').classList.remove('open');
+                }
+            });
+            
+            // Tema uygulama fonksiyonu
+            function applyTheme(theme) {
+                document.body.className = `theme-${theme}`;
+                localStorage.setItem('theme', theme);
+            }
+
+            // Kaydedilmiş temayı yükle (yoksa modern koyu temayı kullan)
+            const savedTheme = localStorage.getItem('theme') || 'modern-dark';
+            applyTheme(savedTheme);
+
+            // Geri sayımları her saniye güncelle
+            setInterval(updateCountdowns, 1000);
+            updateCountdowns();
+            
+            // Geri sayımları güncelleme fonksiyonu
+            function updateCountdowns() {
+                updateCountdown('tyt', examDates.tyt);
+                updateCountdown('ayt', examDates.ayt);
+                updateCountdown('ydt', examDates.ydt);
+            }
+
+            // Belirli bir sınav için geri sayımı güncelleme fonksiyonu
+            function updateCountdown(examType, targetDate) {
+                const now = new Date();
+                const difference = targetDate - now;
+                
+                if (difference > 0) {
+                    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+                    
+                    document.getElementById(`${examType}-days`).textContent = days;
+                    document.getElementById(`${examType}-hours`).textContent = hours;
+                    document.getElementById(`${examType}-minutes`).textContent = minutes;
+                    document.getElementById(`${examType}-seconds`).textContent = seconds;
+                    
+                    // Referans tarihe göre ilerlemeyi hesapla (sınavdan 1 yıl önce)
+                    const oneYearInMs = 365 * 24 * 60 * 60 * 1000;
+                    const referenceDate = new Date(targetDate.getTime() - oneYearInMs);
+                    const totalPeriod = targetDate - referenceDate;
+                    const elapsedPeriod = now - referenceDate;
+                    
+                    // İlerleme yüzdesini hesapla
+                    let progressPercent = Math.floor((elapsedPeriod / totalPeriod) * 100);
+                    
+                    // İlerlemenin 0 ile 100 arasında olduğundan emin ol
+                    if (progressPercent < 0) progressPercent = 0;
+                    if (progressPercent > 100) progressPercent = 100;
+                    
+                    document.getElementById(`${examType}-progress`).style.width = `${progressPercent}%`;
+                    document.getElementById(`${examType}-progress-text`).textContent = `${progressPercent}%`;
+                } else {
+                    document.getElementById(`${examType}-days`).textContent = '0';
+                    document.getElementById(`${examType}-hours`).textContent = '0';
+                    document.getElementById(`${examType}-minutes`).textContent = '0';
+                    document.getElementById(`${examType}-seconds`).textContent = '0';
+                    
+                    document.getElementById(`${examType}-progress`).style.width = '100%';
+                    document.getElementById(`${examType}-progress-text`).textContent = '100%';
+                }
+            }
+
+            // Tarih görüntüleme fonksiyonu
+            function updateDateDisplay(elementId, date) {
+                const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                document.getElementById(elementId).textContent = date.toLocaleDateString('tr-TR', options);
+            }
+            
+            // Kaydedilmiş tarihi alma fonksiyonu
+            function getSavedDate(key) {
+                const saved = localStorage.getItem(key);
+                return saved ? new Date(saved) : null;
+            }
+        });
+    </script>
+</body>
+</html>
