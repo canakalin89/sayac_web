@@ -29,13 +29,13 @@ Bu proje, **Aziz Sancar Anadolu Lisesi** için özel olarak hazırlanmış bir Y
 ## 🧪 Özelleştirme
 
 - Sayfa üzerindeki ayarlar butonuna ulaşmak için:
-  - Klavyeden sırayla `A`, `Z`, `I`, `Z` tuşlarına basın
-  - Veya sağ alt köşedeki 10x10 px gizli kutucuğa 5 kez tıklayın
+  - Veya sol alt köşedeki 10x10 px gizli kutucuğa 5 kez tıklayın
 - Açılan panelden:
   - Okul adı, açıklaması
   - Telefon numarası ve sosyal medya bağlantıları
   - Sınav tarih ve saatleri
-  - Sınav sürelerini değiştirebilirsiniz
+  - Sınav sürelerini değiştirebilirsiniz.
+  - Daha fazla da olabilir...
 
 ## 📞 İletişim
 
