@@ -94,8 +94,8 @@
         }
         
         .progress-bar-bg {
-            height: 6px;
-            border-radius: 3px;
+            height: 8px;
+            border-radius: 4px;
             overflow: hidden;
             transition: background-color 0.3s;
         }
@@ -108,10 +108,18 @@
             background-color: rgba(0, 0, 0, 0.1);
         }
         
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .progress-bar {
             height: 100%;
-            border-radius: 3px;
-            background-color: var(--accent);
+            border-radius: 4px;
+            background: linear-gradient(-45deg, #3b82f6, #60a5fa, #2563eb, #3b82f6);
+            background-size: 400% 400%;
+            animation: gradient-animation 10s ease infinite;
             transition: width 0.5s ease;
         }
         
@@ -618,7 +626,7 @@
                     <div class="mb-6">
                         <div class="flex justify-between text-sm mb-2">
                             <span class="font-medium opacity-70">Sınava Kalan Süre</span>
-                            <span class="font-semibold text-blue-500" id="tyt-progress-text">25%</span>
+                            <span class="font-semibold text-blue-400" id="tyt-progress-text">25%</span>
                         </div>
                         <div class="progress-bar-bg">
                             <div class="progress-bar" id="tyt-progress" style="width: 25%"></div>
@@ -680,7 +688,7 @@
                     <div class="mb-6">
                         <div class="flex justify-between text-sm mb-2">
                             <span class="font-medium opacity-70">Sınava Kalan Süre</span>
-                            <span class="font-semibold text-blue-500" id="ayt-progress-text">25%</span>
+                            <span class="font-semibold text-blue-400" id="ayt-progress-text">25%</span>
                         </div>
                         <div class="progress-bar-bg">
                             <div class="progress-bar" id="ayt-progress" style="width: 25%"></div>
@@ -742,7 +750,7 @@
                     <div class="mb-6">
                         <div class="flex justify-between text-sm mb-2">
                             <span class="font-medium opacity-70">Sınava Kalan Süre</span>
-                            <span class="font-semibold text-blue-500" id="ydt-progress-text">25%</span>
+                            <span class="font-semibold text-blue-400" id="ydt-progress-text">25%</span>
                         </div>
                         <div class="progress-bar-bg">
                             <div class="progress-bar" id="ydt-progress" style="width: 25%"></div>
@@ -957,6 +965,11 @@
                         progress = 100;
                     } else {
                         progress = Math.floor((elapsedDuration / totalDuration) * 100);
+                        // Süreç başladıysa ancak hesaplanan yüzde 0 ise,
+                        // motivasyon için en az %1 göster.
+                        if (progress === 0) {
+                            progress = 1;
+                        }
                     }
                     
                     document.getElementById(`${examType}-progress`).style.width = `${progress}%`;
@@ -981,5 +994,3 @@
     </script>
 </body>
 </html>
-
-
